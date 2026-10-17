@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Code Generator</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; max-width: 800px; margin: 40px auto; padding: 0 20px; }
+        h1 { text-align: center; color: #2c3e50; }
+        .container { background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        label { font-weight: bold; display: block; margin-bottom: 8px; margin-top: 20px; }
+        textarea { width: 100%; box-sizing: border-box; padding: 12px; border: 1px solid #ccc; border-radius: 4px; font-family: inherit; resize: vertical; }
+        button { background-color: #007bff; color: white; border: none; padding: 12px 20px; font-size: 16px; border-radius: 4px; cursor: pointer; margin-top: 15px; width: 100%; transition: background 0.3s; }
+        button:hover { background-color: #0056b3; }
+        button:disabled { background-color: #a0c4ff; cursor: not-allowed; }
+        .output-box { font-family: monospace; background-color: #1e1e1e; color: #d4d4d4; }
+    </style>
+</head>
+<body>
+    <h1>Amazon Bedrock Code Assistant</h1>
+    <div class="container">
+        <label for="prompt">What do you want to build?</label>
+        <textarea id="prompt" rows="5" placeholder="e.g., Write a Python script to list all S3 buckets..."></textarea>
+        
+        <button id="generateBtn" onclick="generateCode()">Generate Code</button>
+
+        <label for="output">Generated Code</label>
+        <textarea id="output" class="output-box" rows="15" readonly placeholder="Your code will appear here..."></textarea>
+    </div>
+
+    <script>
+        // PASTE YOUR API GATEWAY URL HERE
+        const API_URL = "YOUR_API_GATEWAY_URL_HERE/generate";
+
+        async function generateCode() {
+            const promptContent = document.getElementById('prompt').value;
+            const outputBox = document.getElementById('output');
+            const btn = document.getElementById('generateBtn');
+
+            if (!promptContent.trim()) { alert("Please enter a request first."); return; }
+
+            outputBox.value = "Generating code... Please wait.";
+            btn.disabled = true;
+            btn.innerText = "Generating...";
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ content: promptContent })
+                });
+
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                outputBox.value = await response.text();
+            } catch (error) {
+                console.error("Error:", error);
+                outputBox.value = "An error occurred: " + error.message;
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Generate Code";
+            }
+        }
+    </script>
+</body>
+</html>
